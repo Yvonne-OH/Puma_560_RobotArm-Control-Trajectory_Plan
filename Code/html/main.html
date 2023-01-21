@@ -1,0 +1,808 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>main</title><meta name="generator" content="MATLAB 9.12"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2023-01-14"><meta name="DC.source" content="main.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#3">&#27979;&#35797;inverse kinematics &#21644; forward kinematics</a></li></ul></div><pre class="codeinput"><span class="comment">%startup_rvc</span>
+clear;clc;close <span class="string">all</span>
+
+addpath(genpath(<span class="string">'demo'</span>),genpath(<span class="string">'my_trajectory_plan'</span>))
+</pre><pre class="codeinput">demo_ik_fk=0; <span class="comment">%&#27491;&#36870;&#35299;&#27979;&#35797;</span>
+demo_show_forward=0; <span class="comment">%&#27491;&#35299;&#26174;&#31034;</span>
+demo_show_inverse=0; <span class="comment">%&#20301;&#32622;&#36870;&#35299;&#26174;&#31034;</span>
+demo_bring_cup_with_matlab_jtraj=0;  <span class="comment">%&#35843;&#29992;matlab&#30340;&#26041;&#27861;&#36827;&#34892;&#36712;&#36857;&#35268;&#21010;</span>
+demo_my_trajectory_plan=1;   <span class="comment">%&#33258;&#24049;&#20889;&#30340;&#36712;&#36857;&#35268;&#21010;&#20195;&#30721;</span>
+
+<span class="keyword">if</span> demo_ik_fk+demo_show_forward+demo_show_inverse+demo_bring_cup_with_matlab_jtraj+demo_my_trajectory_plan&gt;1
+    error(<span class="string">'run one function one time &#19968;&#27425;&#36816;&#34892;&#19968;&#20010;&#36873;&#39033;'</span>)
+<span class="keyword">end</span>
+
+
+demo_csdn=0;
+<span class="comment">%joint_angles=[0 90 90 90 0 0]; err</span>
+<span class="comment">%robot = puma560_dh(joint_angles,1);</span>
+<span class="comment">%disp('fowrard_kinematics:')</span>
+</pre><h2 id="3">&#27979;&#35797;inverse kinematics &#21644; forward kinematics</h2><pre class="codeinput"><span class="keyword">if</span> demo_ik_fk
+    <span class="comment">%&#27979;&#35797;&#27491;&#36870;&#35299;&#30340;&#20195;&#30721;&#26159;&#21542;&#27491;&#30830;</span>
+    <span class="comment">%&#36755;&#20837;&#19968;&#20010;&#30446;&#26631;&#35282;&#24230;&#20808;&#29992;&#27491;&#35299;&#25214;&#21040;&#26411;&#31471;&#25191;&#34892;&#22120;&#30340;&#30697;&#38453;&#21518;,&#36870;&#35299;&#20986;8&#32452;&#35299;&#65292;&#22312;&#23558;&#20843;&#32452;&#35299;&#27491;&#35299;&#30475;&#26159;&#21542;&#30456;&#21516;&#65292;</span>
+    <span class="comment">%&#35843;&#29992;&#30340;&#26041;&#27861;&#20301;&#20110;demo&#25991;&#20214;&#22841;</span>
+    joint_rads=[50 70 90 20 32 50]/180*pi;
+    test_ik_fk(joint_rads);
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> demo_show_forward
+    <span class="comment">%&#30452;&#35266;&#30340;&#26597;&#30475;&#27491;&#35299;&#30340;&#36164;&#35759;</span>
+    <span class="comment">%&#36755;&#20837;&#20851;&#33410;&#26174;&#31034;&#27491;&#35299;&#30340;&#30697;&#38453;&#24182;&#26174;&#31034;robot&#30340;&#29366;&#24577;</span>
+    <span class="comment">%&#35843;&#29992;&#30340;&#26041;&#27861;&#20301;&#20110;demo&#25991;&#20214;&#22841;</span>
+    joints = [30 25 -90 50 70 -80];
+    show_forward(joints);
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> demo_show_inverse
+    <span class="comment">%&#30452;&#35266;&#30340;&#26597;&#30475;&#36870;&#35299;&#30340;&#36164;&#35759;</span>
+    <span class="comment">%&#36755;&#20837;&#26411;&#31471;&#25191;&#34892;&#22120;&#30340;&#30697;&#38453;&#24182;&#26174;&#31034;robot&#30340;&#29366;&#24577;</span>
+    <span class="comment">%&#35843;&#29992;&#30340;&#26041;&#27861;&#20301;&#20110;demo&#25991;&#20214;&#22841;</span>
+    T=[ 0    0.5736    0.8192   -0.3590; <span class="keyword">...</span>
+         0   -0.8192    0.5736   -0.1784; <span class="keyword">...</span>
+    1.0000         0         0   -0.0142; <span class="keyword">...</span>
+         0         0         0    1.0000];
+    show_inverse(T);
+
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> demo_bring_cup_with_matlab_jtraj
+    <span class="comment">%&#20351;&#29992;matlab&#30340;&#36712;&#36857;&#35268;&#21010;</span>
+    bring_cup_with_matlab_jtraj();
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> demo_my_trajectory_plan
+    bring_cup_with_my_trajectory();
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">
+test_joints =
+
+   -3.1019   -0.8608    0.1008   -0.5611    3.1179    2.5933
+
+
+ans =
+
+    'no: 1  norm 5.21'
+
+
+ans =
+
+    'no: 1  change_degs 7.20'
+
+
+test_joints =
+
+   -3.1019   -5.4224    2.9485    2.5104    2.0449   -0.3756
+
+
+ans =
+
+    'no: 2  norm 7.64'
+
+
+ans =
+
+    'no: 2  change_degs 13.94'
+
+
+test_joints =
+
+   -5.7281    2.2808    0.1008   -0.0220    2.0841   -0.0156
+
+
+ans =
+
+    'no: 3  norm 6.51'
+
+
+ans =
+
+    'no: 3  change_degs 9.17'
+
+
+test_joints =
+
+   -5.7281   -2.2808    2.9485   -2.2974    2.4426   -2.6278
+
+
+ans =
+
+    'no: 4  norm 8.05'
+
+
+ans =
+
+    'no: 4  change_degs 14.64'
+
+
+test_joints =
+
+   -3.1019   -0.8608    0.1008    2.5805   -3.1179    5.7349
+
+
+ans =
+
+    'no: 5  norm 7.72'
+
+
+ans =
+
+    'no: 5  change_degs 9.78'
+
+
+test_joints =
+
+   -3.1019   -5.4224    2.9485    5.6519   -2.0449    2.7660
+
+
+ans =
+
+    'no: 6  norm 9.57'
+
+
+ans =
+
+    'no: 6  change_degs 16.70'
+
+
+test_joints =
+
+   -5.7281    2.2808    0.1008    3.1196   -2.0841    3.1259
+
+
+ans =
+
+    'no: 7  norm 7.87'
+
+
+ans =
+
+    'no: 7  change_degs 12.27'
+
+
+test_joints =
+
+   -5.7281   -2.2808    2.9485    0.8442   -2.4426    0.5138
+
+
+ans =
+
+    'no: 8  norm 7.32'
+
+
+ans =
+
+    'no: 8  change_degs 12.86'
+
+
+test_joints =
+
+   -2.7792    0.0660   -0.6534   -0.2278    2.7885    2.9853
+
+
+ans =
+
+    'no: 1  norm 1.38'
+
+
+ans =
+
+    'no: 1  change_degs 2.53'
+
+
+test_joints =
+
+   -2.7792    1.0313   -2.5805    1.4956    2.8883   -1.6490
+
+
+ans =
+
+    'no: 2  norm 5.76'
+
+
+ans =
+
+    'no: 2  change_degs 8.16'
+
+
+test_joints =
+
+   -5.4730    2.1103   -0.6534   -1.7384    2.6371   -1.7722
+
+
+ans =
+
+    'no: 3  norm 5.97'
+
+
+ans =
+
+    'no: 3  change_degs 9.11'
+
+
+test_joints =
+
+   -5.4730    3.0756   -2.5805   -2.2366    2.1234   -2.7493
+
+
+ans =
+
+    'no: 4  norm 7.79'
+
+
+ans =
+
+    'no: 4  change_degs 13.00'
+
+
+test_joints =
+
+   -2.7792    0.0660   -0.6534    2.9138   -2.7885    6.1269
+
+
+ans =
+
+    'no: 5  norm 7.81'
+
+
+ans =
+
+    'no: 5  change_degs 8.46'
+
+
+test_joints =
+
+   -2.7792    1.0313   -2.5805    4.6372   -2.8883    1.4926
+
+
+ans =
+
+    'no: 6  norm 8.67'
+
+
+ans =
+
+    'no: 6  change_degs 11.05'
+
+
+test_joints =
+
+   -5.4730    2.1103   -0.6534    1.4032   -2.6371    1.3694
+
+
+ans =
+
+    'no: 7  norm 7.31'
+
+
+ans =
+
+    'no: 7  change_degs 10.57'
+
+
+test_joints =
+
+   -5.4730    3.0756   -2.5805    0.9050   -2.1234    0.3923
+
+
+ans =
+
+    'no: 8  norm 7.92'
+
+
+ans =
+
+    'no: 8  change_degs 13.44'
+
+
+test_joints =
+
+   -2.7792   -0.7149   -0.1900   -0.1063    3.1006    3.0385
+
+
+ans =
+
+    'no: 1  norm 0.97'
+
+
+ans =
+
+    'no: 1  change_degs 1.49'
+
+
+test_joints =
+
+   -2.7792    0.7149   -3.0439    2.3426    2.1626   -0.5477
+
+
+ans =
+
+    'no: 2  norm 5.06'
+
+
+ans =
+
+    'no: 2  change_degs 6.40'
+
+
+test_joints =
+
+   -5.4730    2.4267   -0.1900   -0.3761    2.1617   -0.3040
+
+
+ans =
+
+    'no: 3  norm 4.93'
+
+
+ans =
+
+    'no: 3  change_degs 7.55'
+
+
+test_joints =
+
+   -5.4730    3.8565   -3.0439   -2.1695    2.4037   -2.4769
+
+
+ans =
+
+    'no: 4  norm 7.82'
+
+
+ans =
+
+    'no: 4  change_degs 12.77'
+
+
+test_joints =
+
+   -2.7792   -0.7149   -0.1900    3.0353   -3.1006    6.1801
+
+
+ans =
+
+    'no: 5  norm 7.51'
+
+
+ans =
+
+    'no: 5  change_degs 7.42'
+
+
+test_joints =
+
+   -2.7792    0.7149   -3.0439    5.4842   -2.1626    2.5939
+
+
+ans =
+
+    'no: 6  norm 7.96'
+
+
+ans =
+
+    'no: 6  change_degs 8.57'
+
+
+test_joints =
+
+   -5.4730    2.4267   -0.1900    2.7655   -2.1617    2.8376
+
+
+ans =
+
+    'no: 7  norm 6.82'
+
+
+ans =
+
+    'no: 7  change_degs 9.56'
+
+
+test_joints =
+
+   -5.4730    3.8565   -3.0439    0.9720   -2.4037    0.6647
+
+
+ans =
+
+    'no: 8  norm 7.82'
+
+
+ans =
+
+    'no: 8  change_degs 13.23'
+
+
+test_joints =
+
+   -0.8788   -1.0499   -0.7259    2.6846    1.0602   -2.0983
+
+
+ans =
+
+    'no: 1  norm 6.51'
+
+
+ans =
+
+    'no: 1  change_degs 7.76'
+
+
+test_joints =
+
+   -0.8788   -0.1573   -2.5080    1.8576    0.4130   -1.0750
+
+
+ans =
+
+    'no: 2  norm 6.11'
+
+
+ans =
+
+    'no: 2  change_degs 9.16'
+
+
+test_joints =
+
+   -3.5650    3.2989   -0.7259   -1.1900    0.2231   -1.5882
+
+
+ans =
+
+    'no: 3  norm 6.92'
+
+
+ans =
+
+    'no: 3  change_degs 9.63'
+
+
+test_joints =
+
+   -3.5650    4.1915   -2.5080   -0.2486    0.9880   -2.6307
+
+
+ans =
+
+    'no: 4  norm 8.17'
+
+
+ans =
+
+    'no: 4  change_degs 11.97'
+
+
+test_joints =
+
+   -0.8788   -1.0499   -0.7259    5.8262   -1.0602    1.0433
+
+
+ans =
+
+    'no: 5  norm 7.78'
+
+
+ans =
+
+    'no: 5  change_degs 8.82'
+
+
+test_joints =
+
+   -0.8788   -0.1573   -2.5080    4.9992   -0.4130    2.0666
+
+
+ans =
+
+    'no: 6  norm 6.98'
+
+
+ans =
+
+    'no: 6  change_degs 9.57'
+
+
+test_joints =
+
+   -3.5650    3.2989   -0.7259    1.9516   -0.2231    1.5534
+
+
+ans =
+
+    'no: 7  norm 5.87'
+
+
+ans =
+
+    'no: 7  change_degs 8.77'
+
+
+test_joints =
+
+   -3.5650    4.1915   -2.5080    2.8930   -0.9880    0.5109
+
+
+ans =
+
+    'no: 8  norm 7.88'
+
+
+ans =
+
+    'no: 8  change_degs 12.82'
+
+
+test_joints =
+
+   -0.8788   -0.0501   -0.5058    2.6552    2.1739   -2.6256
+
+
+ans =
+
+    'no: 1  norm 1.60'
+
+
+ans =
+
+    'no: 1  change_degs 2.06'
+
+
+test_joints =
+
+   -0.8788    1.0631   -2.7281    2.7083    1.1603   -2.1516
+
+
+ans =
+
+    'no: 2  norm 2.91'
+
+
+ans =
+
+    'no: 2  change_degs 4.20'
+
+
+test_joints =
+
+   -3.5650    2.0785   -0.5058   -0.2331    1.0956   -2.6613
+
+
+ans =
+
+    'no: 3  norm 5.09'
+
+
+ans =
+
+    'no: 3  change_degs 7.79'
+
+
+test_joints =
+
+   -3.5650    3.1917   -2.7281   -0.2528    2.1782   -2.9159
+
+
+ans =
+
+    'no: 4  norm 6.31'
+
+
+ans =
+
+    'no: 4  change_degs 11.37'
+
+
+test_joints =
+
+   -0.8788   -0.0501   -0.5058    5.7968   -2.1739    0.5160
+
+
+ans =
+
+    'no: 5  norm 5.29'
+
+
+ans =
+
+    'no: 5  change_degs 5.70'
+
+
+test_joints =
+
+   -0.8788    1.0631   -2.7281    5.8499   -1.1603    0.9900
+
+
+ans =
+
+    'no: 6  norm 5.74'
+
+
+ans =
+
+    'no: 6  change_degs 8.35'
+
+
+test_joints =
+
+   -3.5650    2.0785   -0.5058    2.9085   -1.0956    0.4803
+
+
+ans =
+
+    'no: 7  norm 5.33'
+
+
+ans =
+
+    'no: 7  change_degs 8.51'
+
+
+test_joints =
+
+   -3.5650    3.1917   -2.7281    2.8887   -2.1782    0.2257
+
+
+ans =
+
+    'no: 8  norm 6.72'
+
+
+ans =
+
+    'no: 8  change_degs 11.81'
+
+
+joint_schedule =
+
+   -3.1019   -0.8608    0.1008   -0.5611    3.1179    2.5933
+   -2.7792    0.0660   -0.6534   -0.2278    2.7885    2.9853
+   -2.7792   -0.7149   -0.1900   -0.1063    3.1006    3.0385
+   -0.8788   -1.0499   -0.7259    2.6846    1.0602   -2.0983
+   -0.8788   -0.0501   -0.5058    2.6552    2.1739   -2.6256
+
+
+points_num_record =
+
+     1
+     9
+    97
+   177
+   417
+   562
+
+</pre><img vspace="5" hspace="5" src="main_01.png" alt=""> <p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2022a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%startup_rvc
+clear;clc;close all
+
+addpath(genpath('demo'),genpath('my_trajectory_plan'))
+
+%%
+demo_ik_fk=0; %正逆解测试
+demo_show_forward=0; %正解显示
+demo_show_inverse=0; %位置逆解显示
+demo_bring_cup_with_matlab_jtraj=0;  %调用matlab的方法进行轨迹规划
+demo_my_trajectory_plan=1;   %自己写的轨迹规划代码
+
+if demo_ik_fk+demo_show_forward+demo_show_inverse+demo_bring_cup_with_matlab_jtraj+demo_my_trajectory_plan>1
+    error('run one function one time 一次运行一个选项')
+end
+
+
+demo_csdn=0;
+%joint_angles=[0 90 90 90 0 0]; err
+%robot = puma560_dh(joint_angles,1);
+%disp('fowrard_kinematics:')
+
+
+%% 测试inverse kinematics 和 forward kinematics
+if demo_ik_fk
+    %测试正逆解的代码是否正确
+    %输入一个目标角度先用正解找到末端执行器的矩阵后,逆解出8组解，在将八组解正解看是否相同，
+    %调用的方法位于demo文件夹
+    joint_rads=[50 70 90 20 32 50]/180*pi;
+    test_ik_fk(joint_rads);
+end
+
+if demo_show_forward
+    %直观的查看正解的资讯
+    %输入关节显示正解的矩阵并显示robot的状态
+    %调用的方法位于demo文件夹
+    joints = [30 25 -90 50 70 -80];
+    show_forward(joints);
+end
+
+if demo_show_inverse
+    %直观的查看逆解的资讯
+    %输入末端执行器的矩阵并显示robot的状态
+    %调用的方法位于demo文件夹
+    T=[ 0    0.5736    0.8192   -0.3590; ...
+         0   -0.8192    0.5736   -0.1784; ...
+    1.0000         0         0   -0.0142; ...
+         0         0         0    1.0000];
+    show_inverse(T);
+    
+end
+
+if demo_bring_cup_with_matlab_jtraj
+    %使用matlab的轨迹规划
+    bring_cup_with_matlab_jtraj();
+end
+
+if demo_my_trajectory_plan
+    bring_cup_with_my_trajectory();
+end
+
+##### SOURCE END #####
+--></body></html>
